@@ -61,6 +61,17 @@ final class RadialMenuViewModel: ObservableObject {
         return effectiveWindowAction.direction.shouldFillRadialMenu
     }
 
+    /// Half of the angular width of one radial menu segment, used to size the direction selector.
+    var directionSelectorHalfAngleSpan: Double {
+        let count = directionalRadialMenuActions.count
+
+        guard count > 1 else {
+            return 180.0
+        }
+
+        return 180.0 / Double(count)
+    }
+
     var shouldHideDirectionSelector: Bool {
         // If the current action is a user-set radial menu action, always show the direction selector
         if radialMenuActions.contains(where: { $0.associatedActionId == effectiveWindowAction.id }) {

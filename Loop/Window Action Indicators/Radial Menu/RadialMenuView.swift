@@ -139,11 +139,13 @@ struct RadialMenuView: View {
                     if radialMenuCornerRadius >= radialMenuSize / 2 - 2 {
                         DirectionSelectorCircleSegment(
                             angle: viewModel.angle,
+                            halfAngleSpan: viewModel.directionSelectorHalfAngleSpan,
                             radialMenuSize: radialMenuSize
                         )
                     } else {
                         DirectionSelectorSquareSegment(
                             angle: viewModel.angle,
+                            halfAngleSpan: viewModel.directionSelectorHalfAngleSpan,
                             radialMenuCornerRadius: radialMenuCornerRadius,
                             radialMenuThickness: radialMenuThickness
                         )

@@ -37,6 +37,11 @@ extension WindowAction {
         WindowAction(.topLeftQuarter, keybind: [.kVK_UpArrow, .kVK_LeftArrow]),
         WindowAction(.topRightQuarter, keybind: [.kVK_UpArrow, .kVK_RightArrow]),
         WindowAction(.bottomRightQuarter, keybind: [.kVK_DownArrow, .kVK_RightArrow]),
-        WindowAction(.bottomLeftQuarter, keybind: [.kVK_DownArrow, .kVK_LeftArrow])
+        WindowAction(.bottomLeftQuarter, keybind: [.kVK_DownArrow, .kVK_LeftArrow]),
+        WindowAction(
+            "Center Cycle",
+            cycle: [.init(.horizontalCenterThird), .init(.horizontalCenterHalf)],
+            keybind: [.kVK_LeftArrow, .kVK_RightArrow]
+        )
     ]
 }
