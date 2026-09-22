@@ -9,6 +9,9 @@ import SwiftUI
 
 struct DirectionSelectorCircleSegment: Shape {
     var angle: Double = .zero
+
+    /// Half of the angular width of the highlight, so that it matches one radial menu segment.
+    let halfAngleSpan: Double
     let radialMenuSize: CGFloat
 
     var animatableData: Double {
@@ -31,8 +34,8 @@ struct DirectionSelectorCircleSegment: Shape {
                 y: radialMenuSize / 2
             ),
             radius: radialMenuSize,
-            startAngle: .degrees(angle - 22.5),
-            endAngle: .degrees(angle + 22.5),
+            startAngle: .degrees(angle - halfAngleSpan),
+            endAngle: .degrees(angle + halfAngleSpan),
             clockwise: false
         )
 
