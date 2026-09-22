@@ -84,32 +84,100 @@ struct RadialMenuAction: Identifiable, Codable, Hashable, Defaults.Serializable 
 }
 
 extension RadialMenuAction {
+    /// A window action covering part of the screen, in percentages of the available bounds.
+    private static func cell(
+        _ name: String,
+        x: Double,
+        y: Double,
+        width: Double,
+        height: Double
+    ) -> WindowAction {
+        WindowAction(
+            .custom,
+            keybind: [],
+            name: name,
+            unit: .percentage,
+            width: width,
+            height: height,
+            xPoint: x,
+            yPoint: y,
+            positionMode: .coordinates,
+            sizeMode: .custom
+        )
+    }
+
+    /// Twelve segments of 30 degrees, laid out as a grid of three columns and two rows.
+    /// The segments closer to the vertical axis hold the wider zones, which matches where their centers are.
     static let defaultRadialMenuActions: [RadialMenuAction] = [
         .custom(
             WindowAction(
-                .init(localized: "Top Cycle"),
-                cycle: [.init(.topHalf), .init(.topThird), .init(.topTwoThirds)]
+                "Top Center",
+                cycle: [
+                    cell("Top Center Third", x: 33.333, y: 0, width: 33.334, height: 50),
+                    cell("Top Center Half", x: 25, y: 0, width: 50, height: 50),
+                    cell("Top Center Two Thirds", x: 16.667, y: 0, width: 66.666, height: 50)
+                ]
             )
         ),
         .custom(WindowAction(.topRightQuarter)),
+        .custom(
+            WindowAction(
+                "Top Right Third",
+                cycle: [
+                    cell("Top Right Third", x: 66.667, y: 0, width: 33.333, height: 50),
+                    cell("Top Right Two Thirds", x: 33.333, y: 0, width: 66.667, height: 50)
+                ]
+            )
+        ),
         .custom(
             WindowAction(
                 .init(localized: "Right Cycle"),
                 cycle: [.init(.rightHalf), .init(.rightThird), .init(.rightTwoThirds)]
             )
         ),
+        .custom(
+            WindowAction(
+                "Bottom Right Third",
+                cycle: [
+                    cell("Bottom Right Third", x: 66.667, y: 50, width: 33.333, height: 50),
+                    cell("Bottom Right Two Thirds", x: 33.333, y: 50, width: 66.667, height: 50)
+                ]
+            )
+        ),
         .custom(WindowAction(.bottomRightQuarter)),
         .custom(
             WindowAction(
-                .init(localized: "Bottom Cycle"),
-                cycle: [.init(.bottomHalf), .init(.bottomThird), .init(.bottomTwoThirds)]
+                "Bottom Center",
+                cycle: [
+                    cell("Bottom Center Third", x: 33.333, y: 50, width: 33.334, height: 50),
+                    cell("Bottom Center Half", x: 25, y: 50, width: 50, height: 50),
+                    cell("Bottom Center Two Thirds", x: 16.667, y: 50, width: 66.666, height: 50)
+                ]
             )
         ),
         .custom(WindowAction(.bottomLeftQuarter)),
         .custom(
             WindowAction(
+                "Bottom Left Third",
+                cycle: [
+                    cell("Bottom Left Third", x: 0, y: 50, width: 33.333, height: 50),
+                    cell("Bottom Left Two Thirds", x: 0, y: 50, width: 66.667, height: 50)
+                ]
+            )
+        ),
+        .custom(
+            WindowAction(
                 .init(localized: "Left Cycle"),
                 cycle: [.init(.leftHalf), .init(.leftThird), .init(.leftTwoThirds)]
+            )
+        ),
+        .custom(
+            WindowAction(
+                "Top Left Third",
+                cycle: [
+                    cell("Top Left Third", x: 0, y: 0, width: 33.333, height: 50),
+                    cell("Top Left Two Thirds", x: 0, y: 0, width: 66.667, height: 50)
+                ]
             )
         ),
         .custom(WindowAction(.topLeftQuarter)),
