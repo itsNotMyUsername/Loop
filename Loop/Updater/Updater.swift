@@ -123,8 +123,9 @@ final class Updater: ObservableObject {
     private func makeUpdateCheckerTask() -> Task<(), Never>? {
         Task {
             while !Task.isCancelled {
-                // 6 hours
-                try? await Task.sleep(for: .seconds(21600))
+                // Clamped to avoid hitting GitHub's unauthenticated API rate limit
+                let hours = max(Defaults[.updateCheckInterval], 0.25)
+                try? await Task.sleep(for: .seconds(hours * 3600))
 
                 await self.fetchLatestInfo()
             }

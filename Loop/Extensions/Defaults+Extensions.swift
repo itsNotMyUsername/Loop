@@ -125,6 +125,12 @@ extension Defaults.Keys {
     /// Reset with `defaults delete com.MrKai77.Loop moveCursorWithWindow`
     static let moveCursorWithWindow = Key<Bool>("moveCursorWithWindow", default: true)
 
+    /// How often Loop checks for updates in the background, defined in hours. Values below 0.25 (15 minutes) are clamped.
+    /// Changes take effect after the next scheduled check, or on relaunch.
+    /// Adjust with `defaults write com.MrKai77.Loop updateCheckInterval -float x`
+    /// Reset with `defaults delete com.MrKai77.Loop updateCheckInterval`
+    static let updateCheckInterval = Key<Double>("updateCheckInterval", default: 6)
+
     /// Minimum screen size, defined in inches on the diagonal, for which padding will be applied on windows.
     /// Adjust with `defaults write com.MrKai77.Loop paddingMinimumScreenSize -float x`
     /// Reset with `defaults delete com.MrKai77.Loop paddingMinimumScreenSize`
