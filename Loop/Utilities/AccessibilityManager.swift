@@ -104,17 +104,27 @@ final class AccessibilityManager {
         resetInputMonitoring()
 
         let alert = NSAlert()
-        alert.messageText = .init(
-            localized: "Accessibility Request: Title",
-            defaultValue: "\(Bundle.main.appName) Needs Accessibility Permissions"
-        )
+        // macOS 27 renamed the Accessibility privacy pane to Device Control and Data Access
+        alert.messageText = if #available(macOS 27, *) {
+            .init(
+                localized: "Accessibility Request: Title (macOS 27)",
+                defaultValue: "\(Bundle.main.appName) Needs Device Control and Data Access",
+                comment: "Title of the alert asking for permission, using the name of the privacy pane in macOS 27 and later"
+            )
+        } else {
+            .init(
+                localized: "Accessibility Request: Title",
+                defaultValue: "\(Bundle.main.appName) Needs Accessibility Permission",
+                comment: "Title of the alert asking for permission, using the name of the privacy pane in macOS 26 and earlier"
+            )
+        }
         alert.informativeText = String(
             localized: "Accessibility Request: Content",
-            defaultValue: "Please grant access to be able to resize windows."
+            defaultValue: "Grant access in System Settings so \(Bundle.main.appName) can resize windows."
         )
 
         // Reference: https://x.com/leoshimo/status/1975642593569738755
-        let button = alert.addButton(withTitle: .init(localized: "OK"))
+        let button = alert.addButton(withTitle: .init(localized: "Open System Settings", comment: "Button in the alert asking for Accessibility permission"))
         if #available(macOS 26.0, *) {
             button.tintProminence = .primary
         }

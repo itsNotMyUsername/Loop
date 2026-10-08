@@ -127,18 +127,27 @@ struct AdvancedConfigurationView: View {
     @Default(.useSystemWindowManagerWhenAvailable) var useSystemWindowManagerWhenAvailable
     @Default(.ignoreLowPowerMode) var ignoreLowPowerMode
     @Default(.animateWindowResizes) var animateWindowResizes
-    @Default(.hideOnNoSelection) var hideOnNoSelection
     @Default(.disableCursorInteraction) var disableCursorInteraction
     @Default(.ignoreFullscreen) var ignoreFullscreen
     @Default(.hapticFeedback) var hapticFeedback
     @Default(.sizeIncrement) var sizeIncrement
     @Default(.enableRadialMenuCustomization) var enableRadialMenuCustomization
+    @Default(.screenOrder) var screenOrder
 
     @State private var isConfirmingResetKeybinds: Bool = false
     @State private var isConfirmingResetRadialMenuActions: Bool = false
 
     private var showLowPowerModeWarning: Bool {
         animateWindowResizes && !ignoreLowPowerMode && model.isLowPowerModeEnabled
+    }
+
+    /// The preference only takes effect where the macOS window manager integration is available
+    private var isSystemWindowManagerIntegrated: Bool {
+        if #available(macOS 15, *) {
+            useSystemWindowManagerWhenAvailable
+        } else {
+            false
+        }
     }
 
     var body: some View {
@@ -151,41 +160,59 @@ struct AdvancedConfigurationView: View {
                 .onDisappear(perform: model.stopTracking)
         }
         .animation(luminareAnimation, value: enableRadialMenuCustomization)
+        .animation(luminareAnimation, value: useSystemWindowManagerWhenAvailable)
     }
 
     private var generalSection: some View {
         LuminareSection {
             if #available(macOS 15.0, *) {
-                LuminareToggle("Use macOS window manager when available", isOn: $useSystemWindowManagerWhenAvailable)
+                LuminareToggle("Integrate with macOS window manager", isOn: $useSystemWindowManagerWhenAvailable)
             }
 
-            LuminareToggle(isOn: $animateWindowResizes) {
-                Text("Animate window resize")
-                    .padding(.trailing, 4)
-                    .luminareToolTip(attachedTo: .topTrailing, hidden: !showLowPowerModeWarning) {
-                        HStack(spacing: 4) {
-                            Text("To save power, window animations are\nunavailable in Low Power Mode.")
-                                .multilineTextAlignment(.leading)
+            // The macOS window manager's own animation setting applies instead
+            if !isSystemWindowManagerIntegrated {
+                LuminareToggle(isOn: $animateWindowResizes) {
+                    Text("Animate window resizing")
+                        .padding(.trailing, 4)
+                        .luminareToolTip(attachedTo: .topTrailing, hidden: !showLowPowerModeWarning) {
+                            HStack(spacing: 4) {
+                                Text("To save power, window animations are\nunavailable in Low Power Mode.")
+                                    .multilineTextAlignment(.leading)
 
-                            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.battery") {
-                                Button {
-                                    openURL(url)
-                                } label: {
-                                    Image(systemName: "arrow.up.forward")
-                                        .foregroundStyle(.secondary)
-                                        .padding(4)
+                                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.battery") {
+                                    Button {
+                                        openURL(url)
+                                    } label: {
+                                        Image(systemName: "arrow.up.forward")
+                                            .foregroundStyle(.secondary)
+                                            .padding(4)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
+                            .padding(6)
                         }
-                        .padding(6)
-                    }
-                    .animation(luminareAnimation, value: showLowPowerModeWarning)
+                        .animation(luminareAnimation, value: showLowPowerModeWarning)
+                }
             }
 
-            LuminareToggle("Disable cursor interaction", isOn: $disableCursorInteraction)
-            LuminareToggle("Ignore fullscreen windows", isOn: $ignoreFullscreen)
+            LuminareToggle(
+                "Select actions with cursor",
+                isOn: Binding(
+                    get: { !disableCursorInteraction },
+                    set: { disableCursorInteraction = !$0 }
+                )
+            )
+            LuminareToggle("Ignore full-screen windows", isOn: $ignoreFullscreen)
             LuminareToggle("Haptic feedback", isOn: $hapticFeedback)
+
+            LuminarePickerMenu(
+                "Next/previous screen order",
+                selection: $screenOrder,
+                items: ScreenOrder.allCases
+            ) { order in
+                Text("\(order.image) \(Text(order.name))")
+            }
 
             LuminareSlider(
                 "Size increment",
@@ -201,11 +228,9 @@ struct AdvancedConfigurationView: View {
 
     private var radialMenuSection: some View {
         LuminareSection(String(localized: "Radial Menu", comment: "Section header shown in settings")) {
-            LuminareToggle("Hide when no action is selected", isOn: $hideOnNoSelection)
-
             LuminareToggle(isOn: $enableRadialMenuCustomization) {
                 HStack {
-                    Text("Allow radial menu customization")
+                    Text("Customize actions")
 
                     if enableRadialMenuCustomization {
                         Button {
@@ -224,7 +249,7 @@ struct AdvancedConfigurationView: View {
                     isConfirmingResetRadialMenuActions = true
                 } label: {
                     HStack {
-                        Text("Reset radial menu actions")
+                        Text("Reset radial menu actions…")
 
                         if model.showResetRadialMenuActionsSuccessIndicator {
                             Image(systemName: "checkmark")
@@ -238,7 +263,7 @@ struct AdvancedConfigurationView: View {
                     Button("Cancel", role: .cancel) {}
                     Button("Reset", role: .destructive, action: model.resetRadialMenuActions)
                 } message: {
-                    Text("This will reset all radial menu actions to their default configuration.")
+                    Text("This resets all radial menu actions to their defaults.")
                 }
             }
         }
@@ -249,7 +274,7 @@ struct AdvancedConfigurationView: View {
             LuminareButtonRow {
                 Button(action: model.importPrompt) {
                     HStack {
-                        Text("Import")
+                        Text("Import…")
 
                         if model.showImportKeybindsSuccessIndicator {
                             Image(systemName: "checkmark")
@@ -261,7 +286,7 @@ struct AdvancedConfigurationView: View {
 
                 Button(action: model.exportPrompt) {
                     HStack {
-                        Text("Export")
+                        Text("Export…")
 
                         if model.showExportKeybindsSuccessIndicator {
                             Image(systemName: "checkmark")
@@ -275,7 +300,7 @@ struct AdvancedConfigurationView: View {
                     isConfirmingResetKeybinds = true
                 } label: {
                     HStack {
-                        Text("Reset")
+                        Text("Reset…")
 
                         if model.showResetKeybindsSuccessIndicator {
                             Image(systemName: "checkmark")
@@ -288,7 +313,7 @@ struct AdvancedConfigurationView: View {
                     Button("Cancel", role: .cancel) {}
                     Button("Reset", role: .destructive, action: model.resetKeybinds)
                 } message: {
-                    Text("This will reset all keybinds to their original defaults.")
+                    Text("This resets all keybinds to their defaults.")
                 }
             }
             .luminareRoundingBehavior(top: true, bottom: true)
@@ -310,7 +335,12 @@ struct AdvancedConfigurationView: View {
                         .foregroundStyle(.green)
                 }
 
-                Text("Accessibility access")
+                // macOS 27 renamed the Accessibility privacy pane to Device Control and Data Access
+                if #available(macOS 27, *) {
+                    Text("Device Control and Data Access", comment: "Name of the privacy pane in macOS 27 and later, shown as a permission in settings")
+                } else {
+                    Text("Accessibility access", comment: "Name of the privacy pane in macOS 26 and earlier, shown as a permission in settings")
+                }
             }
         } content: {
             Text("Request…", comment: "Button to request accessibility access")

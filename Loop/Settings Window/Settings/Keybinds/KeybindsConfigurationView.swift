@@ -27,6 +27,7 @@ struct KeybindsConfigurationView: View {
     @Default(.doubleClickToTrigger) private var doubleClickToTrigger
     @Default(.middleClickTriggersLoop) private var middleClickTriggersLoop
     @Default(.enableTriggerDelayOnMiddleClick) private var enableTriggerDelayOnMiddleClick
+    @Default(.hideOnNoSelectionForKeybinds) private var hideOnNoSelectionForKeybinds
     @Default(.keybinds) private var keybinds
 
     /// If the user has "enabled" the trigger delay.
@@ -70,8 +71,8 @@ struct KeybindsConfigurationView: View {
 
     @ViewBuilder
     private var settingsSection: some View {
-        LuminareSection(String(localized: "Settings", comment: "Section header shown in settings")) {
-            LuminareToggle("Treat left and right keys differently", isOn: $sideDependentTriggerKey)
+        LuminareSection {
+            LuminareToggle("Distinguish left and right modifier keys", isOn: $sideDependentTriggerKey)
 
             LuminareSlider(
                 "Trigger delay",
@@ -81,6 +82,11 @@ struct KeybindsConfigurationView: View {
                 format: .number.precision(.fractionLength(1...1)),
                 clampsUpper: false,
                 suffix: Text("s", comment: "Unit symbol: seconds")
+            )
+
+            LuminareToggle(
+                String(localized: "Hide when no action is selected", comment: "Toggle to hide the radial menu whenever no action is selected"),
+                isOn: $hideOnNoSelectionForKeybinds
             )
 
             LuminareToggle("Double-click to trigger", isOn: $doubleClickToTrigger)
@@ -93,7 +99,7 @@ struct KeybindsConfigurationView: View {
 
         LuminareSection(String(localized: "Cycles", comment: "Section header shown in settings")) {
             LuminareToggle(isOn: $cycleModeRestartEnabled) {
-                Text("Always start cycles from first item")
+                Text("Always start from the first action")
                     .padding(.trailing, 4)
                     .luminareToolTip(attachedTo: .topTrailing) {
                         Text("By default, Loop resumes cycles from where you last left off in each window.")
@@ -110,11 +116,11 @@ struct KeybindsConfigurationView: View {
     private var keybindsSection: some View {
         LuminareSection(String(localized: "Keybinds", comment: "Section header shown in settings")) {
             LuminareButtonRow {
-                Button("Add") {
+                Button(String(localized: "Add", comment: "Used to add items to a list")) {
                     keybinds.insert(.init(.noAction), at: 0)
                 }
 
-                Button("Remove", role: .destructive) {
+                Button(String(localized: "Remove", comment: "Used to remove items from a list"), role: .destructive) {
                     keybinds.removeAll(where: model.selectedKeybinds.contains)
                 }
                 .disabled(model.selectedKeybinds.isEmpty)
@@ -130,15 +136,11 @@ struct KeybindsConfigurationView: View {
                 KeybindItemView(keybind)
                     .environmentObject(model)
             } emptyView: {
-                HStack {
-                    Spacer()
-                    VStack {
-                        Text("No keybinds")
-                            .font(.title3)
-                        Text("Press \"Add\" to add a keybind")
-                            .font(.caption)
-                    }
-                    Spacer()
+                VStack {
+                    Text("No keybinds")
+                        .font(.title3)
+                    Text("Click “Add” to add a keybind")
+                        .font(.caption)
                 }
                 .foregroundStyle(.secondary)
                 .padding()

@@ -124,7 +124,7 @@ final class AboutConfigurationModel: ObservableObject {
         didCompleteCopyToClipboard = true
 
         Task { @MainActor in
-            try await Task.sleep(for: .seconds(2))
+            try? await Task.sleep(for: .seconds(2))
             didCompleteCopyToClipboard = false
         }
     }
@@ -286,7 +286,7 @@ struct AboutConfigurationView: View {
     private var communitySection: some View {
         LuminareSection {
             Text(
-                "Share feedback on our GitHub page, where you can let us know about any bugs, suggest features, or provide other valuable input. We also accept donations if you feel that Loop has improved your workflow :)"
+                "Share feedback on our GitHub page, where you can let us know about any bugs, suggest features, or share other ideas. If Loop has improved your workflow, you can also donate :)"
             )
             .padding(8)
 

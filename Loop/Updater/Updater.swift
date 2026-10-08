@@ -70,8 +70,7 @@ final class Updater: ObservableObject {
     }
 
     private static func checkIfUpdatesEnabled() -> Bool {
-        if let env = ProcessInfo.processInfo.environment["LOOP_SKIP_UPDATE_CHECK"],
-           env == "1" || env.lowercased() == "true" {
+        if ProcessInfo.processInfo.isEnvironmentFlagEnabled("LOOP_SKIP_UPDATE_CHECK") {
             return false
         }
         return Defaults[.updatesEnabled]
@@ -88,8 +87,12 @@ final class Updater: ObservableObject {
                 if !NSApp.isActive, NSApp.windows.allSatisfy({ !$0.isVisible }) {
                     log.info("Automatic updates enabled, installing update...")
                     Task {
-                        try await downloadAndInstallUpdate()
-                        await relaunchAfterUpdate()
+                        do {
+                            try await downloadAndInstallUpdate()
+                            await relaunchAfterUpdate()
+                        } catch {
+                            // downloadAndInstallUpdate already logs the failure and updates installState
+                        }
                     }
                 } else {
                     log.info("Automatic updates enabled, but Loop is active. Skipping installation.")

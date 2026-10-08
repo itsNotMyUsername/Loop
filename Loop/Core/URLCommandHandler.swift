@@ -487,7 +487,7 @@ final class URLCommandHandler {
             if let window = WindowUtility.userDefinedTargetWindow(),
                let screen = NSScreen.main {
                 Task {
-                    _ = try await WindowActionEngine.shared.apply(
+                    _ = try? await WindowActionEngine.shared.apply(
                         keybind,
                         window: window,
                         screen: screen
@@ -661,7 +661,7 @@ final class URLCommandHandler {
             try? await Task.sleep(for: .seconds(0.1))
 
             writeToOutput("[URLHandler] Executing resize operation")
-            _ = try await WindowActionEngine.shared.apply(
+            _ = try? await WindowActionEngine.shared.apply(
                 action,
                 window: window,
                 screen: screen
@@ -678,7 +678,7 @@ final class URLCommandHandler {
            ScreenUtility.previousScreen(from: currentScreen) {
             writeToOutput("[URLHandler] Moving window to screen: \(targetScreen.localizedName)")
             Task {
-                _ = try await WindowActionEngine.shared.apply(
+                _ = try? await WindowActionEngine.shared.apply(
                     .init(direction),
                     window: window,
                     screen: targetScreen
