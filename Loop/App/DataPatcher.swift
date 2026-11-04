@@ -40,6 +40,28 @@ enum DataPatcher {
             Defaults[.hideOnNoSelection] = Defaults[.hideUntilDirectionIsChosen]
             Defaults.reset(.hideUntilDirectionIsChosen)
         }
+
+        runPatchIfNeeded(patch: .splitRadialMenuPresentationPolicies, initialPatches: initialPatches) {
+            let hideOnNoSelection = Defaults[.hideOnNoSelection] || Defaults[.hideUntilDirectionIsChosen]
+            Defaults[.hideOnNoSelectionForKeybinds] = hideOnNoSelection
+            Defaults[.hideOnNoSelectionForGestures] = hideOnNoSelection
+            Defaults.reset(.hideOnNoSelection)
+            Defaults.reset(.hideUntilDirectionIsChosen)
+        }
+
+        runPatchIfNeeded(patch: .keepCustomizedPreviewBackground, initialPatches: initialPatches) {
+            // Users who changed the blur or accent opacity keep the custom background
+            let blurKey = Defaults.Keys.previewBackgroundEnableBlur
+            let accentKey = Defaults.Keys.previewBackgroundAccentOpacity
+            let customizedBlur = UserDefaults.standard.object(forKey: blurKey.name) != nil
+                && Defaults[blurKey] != blurKey.defaultValue
+            let customizedAccent = UserDefaults.standard.object(forKey: accentKey.name) != nil
+                && Defaults[accentKey] != accentKey.defaultValue
+
+            if customizedBlur || customizedAccent {
+                Defaults[.previewBackgroundStyle] = .custom
+            }
+        }
     }
 
     private static func runPatchIfNeeded(patch: Patches, initialPatches: Patches, with callback: () -> ()) {
@@ -62,6 +84,12 @@ enum DataPatcher {
 
         /// Key was renamed from `hideUntilDirectionIsChosen` to `hideOnNoSelection` with slightly different behavior
         static let changeTohideOnNoSelection = Self(rawValue: 1 << 2)
+
+        /// Split the global no-selection setting into trigger-specific presentation policies.
+        static let splitRadialMenuPresentationPolicies = Self(rawValue: 1 << 3)
+
+        /// The preview background now defaults to the system style, so users who customized it keep the custom style.
+        static let keepCustomizedPreviewBackground = Self(rawValue: 1 << 4)
     }
 }
 
@@ -77,5 +105,6 @@ private extension Defaults.Keys {
     static let processWallpaper = Key<Bool>("processWallpaper", default: false)
 
     // IndicatorService
+    static let hideOnNoSelection = Key<Bool>("hideOnNoSelection", default: false)
     static let hideUntilDirectionIsChosen = Key<Bool>("hideUntilDirectionIsChosen", default: false)
 }

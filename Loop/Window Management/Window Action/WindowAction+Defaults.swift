@@ -40,7 +40,34 @@ extension WindowAction {
         WindowAction(.bottomLeftQuarter, keybind: [.kVK_DownArrow, .kVK_LeftArrow]),
         WindowAction(
             "Center Cycle",
-            cycle: [.init(.horizontalCenterThird), .init(.horizontalCenterHalf)],
+            cycle: [
+                .init(.horizontalCenterThird),
+                .init(.horizontalCenterHalf),
+                .init(
+                    .custom,
+                    keybind: [],
+                    name: "Center Two Thirds",
+                    unit: .percentage,
+                    width: 66.666,
+                    height: 100,
+                    xPoint: 16.667,
+                    yPoint: 0,
+                    positionMode: .coordinates,
+                    sizeMode: .custom
+                ),
+                .init(
+                    .custom,
+                    keybind: [],
+                    name: "Center Three Quarters",
+                    unit: .percentage,
+                    width: 75,
+                    height: 100,
+                    xPoint: 12.5,
+                    yPoint: 0,
+                    positionMode: .coordinates,
+                    sizeMode: .custom
+                )
+            ],
             keybind: [.kVK_LeftArrow, .kVK_RightArrow]
         )
     ]

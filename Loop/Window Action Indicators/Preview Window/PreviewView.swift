@@ -15,7 +15,9 @@ struct PreviewView: View {
 
     @Default(.previewPadding) private var previewPadding
     @Default(.previewCornerRadius) private var previewCornerRadius
+    @Default(.previewUseWindowCornerRadius) private var previewUseWindowCornerRadius
     @Default(.previewBorderThickness) private var previewBorderThickness
+    @Default(.previewBackgroundStyle) private var previewBackgroundStyle
     @Default(.previewBackgroundEnableBlur) private var previewEnableBlur
     @Default(.previewBackgroundAccentOpacity) private var previewBackgroundAccentOpacity
 
@@ -30,12 +32,18 @@ struct PreviewView: View {
             return inset
         }
 
-        // Fall back to the user's default radius
+        // Fall back to 16pt when using window radii, otherwise the user's radius
+        let radius: CGFloat = if #available(macOS 26, *), previewUseWindowCornerRadius {
+            16
+        } else {
+            previewCornerRadius
+        }
+
         return RectangleCornerRadii(
-            topLeading: previewCornerRadius,
-            bottomLeading: previewCornerRadius,
-            bottomTrailing: previewCornerRadius,
-            topTrailing: previewCornerRadius
+            topLeading: radius,
+            bottomLeading: radius,
+            bottomTrailing: radius,
+            topTrailing: radius
         )
     }
 
@@ -55,8 +63,11 @@ struct PreviewView: View {
     private func windowView() -> some View {
         ZStack {
             ZStack {
+                Color.black
+                    .opacity(previewBackgroundStyle == .system ? 0.15 : 0)
+
                 VisualEffectView(material: .hudWindow, blendingMode: .behindWindow, state: .active)
-                    .opacity(previewEnableBlur ? 1 : 0)
+                    .opacity(previewBackgroundStyle == .custom && previewEnableBlur ? 1 : 0)
                     .animation(luminareAnimation, value: previewEnableBlur)
 
                 LinearGradient(
@@ -69,9 +80,10 @@ struct PreviewView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                .opacity(previewBackgroundAccentOpacity)
+                .opacity(previewBackgroundStyle == .custom ? previewBackgroundAccentOpacity : 0)
                 .animation(luminareAnimation, value: previewBackgroundAccentOpacity)
             }
+            .animation(luminareAnimation, value: previewBackgroundStyle)
             .clipShape(.rect(cornerRadii: cornerRadii))
 
             UnevenRoundedRectangle(cornerRadii: cornerRadii)
@@ -91,6 +103,7 @@ struct PreviewView: View {
                     ),
                     lineWidth: previewBorderThickness
                 )
+                .shadow(color: .black.opacity(0.2), radius: 10)
         }
         .padding(previewPadding + previewBorderThickness / 2)
         .animation(luminareAnimation, value: [accentColorController.color1, accentColorController.color2])

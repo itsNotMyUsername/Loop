@@ -5,6 +5,7 @@
 # Applies one Loop configuration to this Mac:
 #   - 13 radial menu segments (a 3 x 2 grid of thirds and halves)
 #   - 12 keybinds, including trigger + left + right = full-height center cycle
+#     (centered 1/3 -> 1/2 -> 2/3 -> 3/4 of the screen width)
 #   - the "Allow radial menu customization" flag
 #
 # All other Loop settings on this Mac stay as they are.
@@ -52,7 +53,7 @@ cat > "$WORK/keybinds.txt" << "KEYBINDS_EOF"
 {"direction":"TopRightQuarter","id":"6B22C764-4DCF-423D-BD00-0A46420F8350","keybind":[126,124]}
 {"direction":"BottomRightQuarter","id":"72B01EEE-97BB-4C55-B7FB-106944F4C452","keybind":[124,125]}
 {"direction":"BottomLeftQuarter","id":"A2E89344-27CB-4B51-BB80-4116CF968D9A","keybind":[125,123]}
-{"direction":"Cycle","id":"C5FB769E-0411-47A0-9E96-E178B9E4274F","keybind":[123,124],"name":"Center Cycle","cycle":[{"direction":"HorizontalCenterThird","id":"8FF05B3C-7639-4C8D-8417-478D658A4397","keybind":[]},{"direction":"HorizontalCenterHalf","id":"8D16EF32-B700-448B-AF3E-D88BD64D1FAF","keybind":[]}]}
+{"direction":"Cycle","id":"C5FB769E-0411-47A0-9E96-E178B9E4274F","keybind":[123,124],"name":"Center Cycle","cycle":[{"direction":"HorizontalCenterThird","id":"8FF05B3C-7639-4C8D-8417-478D658A4397","keybind":[]},{"direction":"HorizontalCenterHalf","id":"8D16EF32-B700-448B-AF3E-D88BD64D1FAF","keybind":[]},{"direction":"Custom","id":"57D7449E-A95B-4206-A9A9-EB0A72F9E405","keybind":[],"name":"Center Two Thirds","unit":1,"positionMode":1,"sizeMode":0,"xPoint":16.667,"yPoint":0,"width":66.666,"height":100},{"direction":"Custom","id":"42582C7D-0C65-40EF-85AB-FBF0CBB77DFA","keybind":[],"name":"Center Three Quarters","unit":1,"positionMode":1,"sizeMode":0,"xPoint":12.5,"yPoint":0,"width":75,"height":100}]}
 KEYBINDS_EOF
 
 # --- 1. Save the current preferences -------------------------------------------
